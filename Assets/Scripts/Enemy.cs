@@ -44,8 +44,13 @@ public class Enemy : MonoBehaviour, IDamageable
             VisualEffect vfx = Instantiate(deathVFX, transform.position, Quaternion.identity);
             Destroy(vfx.gameObject, 2f);
         }
+        EnemyKillTracker counter = FindObjectOfType<EnemyKillTracker>();
+        if (counter != null)
+            counter.RegisterKill();
+
         Debug.Log("Enemy died");
         Destroy(gameObject);
         TryDropItem();
     }
+
 }
