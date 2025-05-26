@@ -1,12 +1,17 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-
-public class Ship : MonoBehaviour
+using UnityEngine.UI;
+public class Ship : MonoBehaviour, IDamageable
 {
     [Header("Movement")]
     public float moveSpeed = 5f;
     public Vector2 moveInput;
-
+    [Header("UI")]
+    public Slider healthSlider;
+    [Header("Ammo")]
+    public int maxAmmo = 150;
+    public int currentAmmo;
+    public UnityEngine.UI.Slider ammoSlider;
     [Header("Shooting")]
     public GameObject bulletPrefab;
     public Transform shootPoint;
@@ -19,12 +24,29 @@ public class Ship : MonoBehaviour
 
     private PlayerInputActions inputActions;
 
+    public float health = 100f;
+
     void Awake()
     {
         inputActions = new PlayerInputActions();
         inputActions.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         inputActions.Player.Move.canceled += ctx => moveInput = Vector2.zero;
         inputActions.Player.Fire.performed += ctx => TryShoot();
+    }
+    void Start()
+    {
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = health;
+            healthSlider.value = health;
+        }
+        currentAmmo = maxAmmo;
+
+        if (ammoSlider != null)
+        {
+            ammoSlider.maxValue = maxAmmo;
+            ammoSlider.value = currentAmmo;
+        }
     }
 
     void OnEnable() => inputActions.Enable();
@@ -51,9 +73,33 @@ public class Ship : MonoBehaviour
 
     void TryShoot()
     {
-        if (fireCooldown > 0f) return;
+        if (fireCooldown > 0f || currentAmmo <= 0) return;
 
         Instantiate(bulletPrefab, shootPoint.position, shootPoint.rotation);
+        currentAmmo--;
         fireCooldown = fireRate;
+
+        if (ammoSlider != null)
+            ammoSlider.value = currentAmmo;
+    }
+    public void TakeDamage(float amount)
+    {
+        health -= amount;
+        Debug.Log("Jugador recibió daño: " + amount);
+
+        if (healthSlider != null)
+            healthSlider.value = health;
+
+        if (health <= 0f)
+        {
+            Debug.Log("Jugador muerto!");
+            Destroy(gameObject);
+        }
+    }
+    public void AddAmmo(int amount)
+    {
+        currentAmmo = Mathf.Clamp(currentAmmo + amount, 0, maxAmmo);
+        if (ammoSlider != null)
+            ammoSlider.value = currentAmmo;
     }
 }
