@@ -20,14 +20,12 @@ public class HomingMissile : MonoBehaviour
 
         Vector3 direction = (target.position - transform.position);
         direction.y = 0f;
-
-
         direction.Normalize();
 
         Quaternion targetRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
 
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.position += direction * speed * Time.deltaTime;
 
         lifeTimer -= Time.deltaTime;
         if (lifeTimer <= 0f)

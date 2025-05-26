@@ -1,6 +1,8 @@
-using UnityEngine;
 using System.Collections;
-
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
+using UnityEngine.VFX;
 public class BossController : MonoBehaviour, IDamageable
 {
     public GameObject projectilePrefab;
@@ -11,11 +13,12 @@ public class BossController : MonoBehaviour, IDamageable
     public float attackCooldown = 5f;
     private float attackTimer = 0f;
     private int attackPhase = 0;
-    public GameObject deathEffect;
-
+    [HideInInspector] public GameObject victoryPanel;
+    [HideInInspector] public VisualEffect deathEffectPrefab;
     void Start()
     {
         currentHealth = maxHealth;
+        Time.timeScale = 1f;
 
         BossHealthHUD bossHud = FindObjectOfType<BossHealthHUD>();
         if (bossHud != null)
@@ -61,9 +64,14 @@ public class BossController : MonoBehaviour, IDamageable
     void Die()
     {
         Debug.Log("Boss derrotado!");
-        if (deathEffect != null)
-            Instantiate(deathEffect, transform.position, Quaternion.identity);
 
+        if (deathEffectPrefab != null)
+            Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
+
+        if (victoryPanel != null)
+            victoryPanel.SetActive(true);
+
+        Time.timeScale = 0f;
         Destroy(gameObject);
     }
 

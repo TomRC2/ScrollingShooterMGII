@@ -23,7 +23,7 @@ public class Ship : MonoBehaviour, IDamageable
     public float minZ = -5f, maxZ = 5f;
 
     private PlayerInputActions inputActions;
-
+    public GameObject LosePanel;
     public float health = 100f;
 
     void Awake()
@@ -47,6 +47,7 @@ public class Ship : MonoBehaviour, IDamageable
             ammoSlider.maxValue = maxAmmo;
             ammoSlider.value = currentAmmo;
         }
+        Time.timeScale = 1f;
     }
 
     void OnEnable() => inputActions.Enable();
@@ -94,6 +95,10 @@ public class Ship : MonoBehaviour, IDamageable
         {
             Debug.Log("Jugador muerto!");
             Destroy(gameObject);
+            Time.timeScale = 0f;
+
+            if (LosePanel != null)
+                LosePanel.SetActive(true);
         }
     }
     public void AddAmmo(int amount)

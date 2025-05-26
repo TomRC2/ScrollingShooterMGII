@@ -1,5 +1,6 @@
 using UnityEngine;
-
+using UnityEngine.UI;
+using UnityEngine.VFX;
 public class EnemyKillTracker : MonoBehaviour
 {
     public int killsToSpawnBoss = 20;
@@ -10,29 +11,50 @@ public class EnemyKillTracker : MonoBehaviour
     public GameObject enemySpawner;
     public GameObject bossHealthBarCanvas;
 
+    public GameObject victoryPanel;
+    public VisualEffect deathEffect;
+    public Text killsRemainingText;
     public GameObject[] redHudBlocks;
     public Material redMaterial;
 
     private bool bossSpawned = false;
 
+    void Start()
+    {
+        UpdateKillUI();
+    }
     public void RegisterKill()
     {
         if (bossSpawned) return;
 
         killCount++;
+        UpdateKillUI();
 
         if (killCount >= killsToSpawnBoss)
         {
             SpawnBoss();
         }
     }
-
+    void UpdateKillUI()
+    {
+        if (killsRemainingText != null)
+        {
+            int remaining = Mathf.Max(0, killsToSpawnBoss - killCount);
+            killsRemainingText.text = "Enemigos restantes: " + remaining;
+        }
+    }
     void SpawnBoss()
     {
         bossSpawned = true;
 
-        if (bossPrefab != null && bossSpawnPoint != null)
-            Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity);
+        GameObject boss = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity);
+
+        BossController bossController = boss.GetComponent<BossController>();
+        if (bossController != null)
+        {
+            bossController.victoryPanel = victoryPanel;
+            bossController.deathEffectPrefab = deathEffect;
+        }
 
         if (enemySpawner != null)
             enemySpawner.SetActive(false);
